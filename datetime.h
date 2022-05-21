@@ -1,12 +1,13 @@
-#ifndef __DATE__
-#define __DATE__
+#ifndef __DATE_AND_TIME__
+#define __DATE_AND_TIME__
 
 #include <iostream>
 ....
 #include "calender.h"
 #include "event.h"
 
-class Time {
+class DateTime {
 
 };
+
 #endif

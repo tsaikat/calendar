@@ -3,23 +3,36 @@
 
 
 #include <iostream>
-....
-#include "time.h"
+#include <string>
 
 
 class Event {
-};
-
-class EvImportant : public Event {
-
-};
-
-class EvOptional : public Event {
+    public:
+    Event (std::string& name, std::string& place, int duration, int participants );
+    virtual bool isMovable() const = 0;
+    virtual std::string& getType() const = 0; 
     
+    protected:
+    std::string mName, mPlace;
+    int mDuration, mParticipants;
 };
 
-class EvMoveable : public Event {
-    
+class Important : public Event {
+    Important (std::string& name, std::string& place, int duration, int participants);
+    bool isMovable() const override;
+    std::string getType() const override;
+};
+
+class Optional : public Event {
+    Optional (std::string& name, std::string& place, int duration, int participants);
+    bool isMovable() const override;
+    std::string getType() const override;    
+};
+
+class Moveable : public Event {
+    Moveable (std::string& name, std::string& place, int duration, int participants);
+    bool isMovable() const override;
+    std::string getType() const override;
 };
 
 

@@ -7,26 +7,31 @@
 
 
 class Interface {
-    void viewCalendar();
-    void addEvent();
-    void moveEvent();
-    void deleteEvent();
-    void freeTime();
-    void importEvent();
-    void exportEvent();
-    void searchEvent();
-    void viewEvents();
-    void exit();
+    // void addEvent();
+    // void moveEvent();
+    // void deleteEvent();
+    // void freeTime();
+    // void importEvent();
+    // void viewEvents();
+    // void exit();
 
-    // printing stuff
-    bool promptChoice(const int& lowNum, const int& highNum, int& choice);
-    void printStartPage();
-    void clearConsole() const;
-    void printManu ();
-    void popUpMsg(const std::string& msg) const;
+    // Printing Program UI
+    void printStartPage() const;
+    void printManu () const;
+    void printViewManu () const;
+    void printFindManu () const;
+    void printExportManu () const;
+
+
+    // Methods executing a command
+    void viewCalendar ();
+    void findEvent();
+    void exportEvent ();
     
-    //sub manus
-    void printViewCal ();
+    //Auxiliary methods for printing UI
+    void clearConsole() const;
+    bool promptChoice(const int& lowest, const int& highest, int& choice) const;
+    void popUpMsg(const std::string& msg) const;
 
 public:
     void start();
