@@ -7,6 +7,9 @@
 #include "event.h"
 
 class DateTime {
+    public:
+    //checks weather the date this entity holds is valid or not
+    bool isValid ();
 
 };
 
