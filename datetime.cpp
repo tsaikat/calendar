@@ -130,7 +130,10 @@ bool DateTime::operator != (const DateTime& other) const {
     return !(*this == other);
 }
 
-// bool DateTime::operator < (const DateTime& rhs) const {
-//     return std::tie(mYear, mMonth, mDay, mTime) <
-//            std:: tie(rhs.mYear, rhs.mMonth, rhs.mDay, rhs.mTime);
-// }
+std::string DateTime::getDate() const {
+    std::stringstream ss;
+    ss <<  std::setfill('0') << std::setw(2) << mDay << "."  <<
+            std::setfill('0') << std::setw(2) << mMonth <<"." <<
+            std::setfill('0') << std::setw(4) << mYear;
+    return ss.str();
+}

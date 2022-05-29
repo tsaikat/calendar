@@ -50,6 +50,13 @@ void Interface::printExportManu () const {
     std::cout << "2. In HTML Format" << std::endl;
 }
 
+void Interface::printImportManu () const {
+    clearConsole();
+    std::cout << "Main Manu >> Import Event:\n" << std:: endl;
+    std::cout << "0. Return Back"  << std::endl;
+    std::cout << "1. In CSV Format"  << std::endl;
+}
+
 void Interface::printHeader() const {
     clearConsole();
     std::cout <<"       Date And Time |"<<
@@ -238,14 +245,37 @@ void Interface::exportEvents () {
         if ( choice == 0) {
             return;
         } else if ( choice == 1 ) {
-            calendar.exportCSV();
+            std::string fileName = "Events exported to "; 
+            fileName += calendar.exportCSV();
+            fileName += "\nPress <ENTER> to return.";
+            popUpMsg(fileName);
         } else if ( choice == 2 ) {
             // Export in .html format
         }
     }
 }
 
+void Interface::importEvents() {
+    int choice;
+    while (true) {
+        printImportManu();
+        if (!promptChoice(0,1, choice) ) {
+            popUpMsg("Oops! command doesn't exist! Press <ENTER> to try again.");
+            continue;
+        }
+        if ( choice == 0) {
+            return;
+        } else if ( choice == 1) {
+            // std::string fileName = promptQuestion("Please enter file path/name" ); 
+            calendar.importCSV();
+        }
+    }
+}
+
+
 void Interface::deleteEvent() {
+        clearConsole();
+        std::cout << "Main Manu >> Delete Event:\n" << std:: endl;
         DateTime date;
         date = promptDateTime(true); //true because we need date too
         if (calendar.deleteEvent(date)) {
@@ -423,7 +453,7 @@ void Interface::start() {
         } else if ( choice == 6) {
             findFreeTime();
         } else if ( choice == 7) {
-            // importEvents();
+            importEvents();
         } else if ( choice == 8) {
             exportEvents();
         }

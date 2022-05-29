@@ -38,3 +38,4 @@ std::ostream& operator << (std::ostream &out, const Event& event) {
 std::string Event::getName() const { return mName; }
 std::string Event::getPlace() const { return mPlace; }
 unsigned Event::getDuration() const { return mDuration; }
+unsigned Event::getParticipants() const { return mParticipants; }

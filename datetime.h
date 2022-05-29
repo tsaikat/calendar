@@ -45,6 +45,7 @@ public:
     unsigned getTime() const;
     void setTime(const unsigned time);
     void setDay(unsigned day);
+    std::string getDate() const;
 
 private:
     unsigned mYear;

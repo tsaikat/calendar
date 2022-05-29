@@ -16,6 +16,7 @@ public:
     std::string getName() const;
     std::string getPlace() const; 
     unsigned getDuration() const;
+    unsigned getParticipants() const;
     
 protected:
     std::string mName;

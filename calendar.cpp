@@ -156,14 +156,110 @@ bool Calendar::moveEvent (const DateTime& moveFrom, const DateTime& moveTo ) {
 }
 
 
-void Calendar::exportCSV() {
+std::string Calendar::exportCSV() {
     std::ofstream file;
-    std::string fileName = "exports/export.csv";
+    std::string fileName = "exports/export0.csv";
     size_t postfix = 0;
+    char delim = ',';
     while (std::filesystem::exists(fileName)) {
         fileName = "exports/export" + std::to_string(++postfix) +".csv";
     }
-
     file.open(fileName, std::ios::out | std::ios::app);
+    file << "Date,"
+         << "Time,"
+         << "Name of Event,"
+         << "Location," 
+         << "Participants," 
+         << "Type of Event,"
+         << "Duration"
+         << "\n";
+    
+    for (auto const& [date, event] : database) {
+        file << date.getDate() << delim 
+             << date.getTime() << delim 
+             << event->getName() << delim
+             << event->getPlace() << delim
+             << event->getParticipants() << delim
+             << event->getType() << delim
+             << event->getDuration() << "\n";
+    }
     file.close();
+    return fileName;
+}
+
+void Calendar::importCSV() {
+    std::ifstream file;
+    file.open(getFileName(), std::ios::in);
+    std::string line = "";
+    getline(file, line);
+    while (getline(file, line)) {
+        std::istringstream row;
+        row.str(line);
+        //veribles to make DateTime & Event
+        int year =0;
+        int month = 0;
+        int day = 0;
+        int time = 0;
+        std::string name = "";
+        std::string place ="";
+        int participants = 0;
+        int type = 0;
+        int duration = 0;
+        int i = 0;
+        for (std::string buffer; std::getline(row, buffer, ','); ++i) {
+            if (i == 0) {
+                std::istringstream dateStream;
+                dateStream.str(buffer);
+                std::string temp;
+                std::getline(dateStream, temp, '.');
+                day = std::stoi(temp);
+                std::getline(dateStream, temp, '.');
+                month = std::stoi(temp);
+                std::getline(dateStream, temp, '.');
+                year = std::stoi(temp);
+            } else if (i == 1) {
+                time = std::stoi(buffer);
+            } else if ( i == 2) {
+                name = buffer;
+            } else if ( i == 3) {
+                place = buffer;
+            } else if ( i == 4) {
+                participants = std::stoi(buffer);
+            } else if ( i == 5) {
+                if (buffer == "Important") type = 1;
+                else if (buffer == "Optional") type = 2;
+                else if (buffer == "Moveable") type = 3;
+            } else if ( i == 6) {
+                duration = std::stoi(buffer);
+            }
+        }
+        DateTime date (year, month, day, time);
+        std::shared_ptr<Event> event; 
+        if (type == 1) {
+            event = std::make_shared<Important>(name, place, duration, participants);
+        } else if (type == 2) {
+            event = std::make_shared<Optional>(name, place, duration, participants);
+        } else if (type == 3) {
+            event = std::make_shared<Moveable>(name, place, duration, participants);
+        }
+        pushEvent(date, event);
+    }
+    throwMsg("Import completed. Press <ENTER> to return");
+}
+std::string Calendar::getFileName() const {
+    std::string fileName;
+    while ( fileName.empty() ) {
+        std::cout << "Please enter a valid file path/name(exclude '.csv' e.g. imports/import0) " <<std::endl;
+        getline(std::cin, fileName);
+        if (fileName.empty() ) {
+            throwMsg("Cannot be left blank. Press <ENTER> to try again!");
+            continue;
+        }
+        fileName+= ".csv";
+        if ( !std::filesystem::exists(fileName) ) {
+            throwMsg("File name/path doesn't exist. Press <ENTER> to try again!");
+            fileName.clear();
+        }
+    }
+    return fileName;
 }

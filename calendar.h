@@ -24,7 +24,9 @@ public:
     bool moveEvent (const DateTime& moveFrom, const DateTime& moveTo );
     void throwMsg (const std::string& msg) const;
 
-    void exportCSV();
+    std::string exportCSV();
+    void importCSV();
+    std::string getFileName() const;
 
 private:
     std::map <DateTime, std::shared_ptr<Event>> database;

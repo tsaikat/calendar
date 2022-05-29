@@ -19,6 +19,7 @@ class Interface {
     void printViewManu() const;
     void printFindManu() const;
     void printExportManu() const;
+    void printImportManu() const;
     void printHeader() const;
 
 
@@ -31,6 +32,7 @@ class Interface {
     void moveEvent();
     void exportEvents();
     void importEvents();
+
     // view Calendar function
     void dailyView();
     void weeklyView();
