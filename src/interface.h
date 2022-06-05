@@ -10,12 +10,6 @@
 #include "event.h"
 #include "calendar.h"
 
-/**
- * @mainpage main page
- * Interface | 
- * Event
- */
-
 
 /**
  * @class Interface
@@ -38,37 +32,15 @@ class Interface {
     /// Prints the header for viewing the calendar in daily, weekly and monthly mode
     void printHeader() const;
 
-    /// Creates interface for different ways of viewing the calendar 
-    void viewCalendar();
-    /// Creates interface for creating and adding an event to the calendar
-    void addEvent();
-    /// Creates interface for finding an event from the calendar
-    void findEvent();
-    /// Creates interface for moving events
-    void moveEvent();
-    /// Creates interface for deleting an event
-    void deleteEvent();
-    /// Creates interface for finding available time in the calendar
-    void findFreeTime();
-    /// Creates interface for importing events
-    void importEvents();
-    /// Creates interface for exporting events
-    void exportEvents();
-
-    /// Prints daily view of the calendar
-    void dailyView();
-    /// Prints weekly view of the calendar
-    void weeklyView();
-    /// Prints monthly view of the calendar
-    void monthlyView();
-
-
     /// Clears the console for giving the illusion of nevigating to a new page by clearing the display
     void clearConsole() const;
     /// Pauses the execution by prompting for input. Upon pressing enter it executes the code below.
     void goBack() const;
-
-
+    /**
+     * Clears the console and popup a message
+     * @param msg string that you want to pass in to popup on screen
+     */
+    void popUpMsg(const std::string& msg) const;
     /**
      * Prompts user for an input from a range of integers
      * @param low (inclusive) is the minimum one can choose
@@ -85,11 +57,6 @@ class Interface {
      * @return a valid integer input from user
      */
     int promptChoice(const std::string question, const int& low, const int& high) const;
-    /**
-     * Clears the console and popup a message
-     * @param msg string that you want to pass in to popup on screen
-     */
-    void popUpMsg(const std::string& msg) const;
     /**
      * Asking for user input in string form
      * @param question question prompted to users
@@ -127,6 +94,29 @@ class Interface {
      */
     void parseDate (std::string& date, int& day, int& month, int& year);
 
+    /// Creates interface for different ways of viewing the calendar 
+    void viewCalendar();
+    /// Creates interface for creating and adding an event to the calendar
+    void addEvent();
+    /// Creates interface for finding an event from the calendar
+    void findEvent();
+    /// Creates interface for moving events
+    void moveEvent();
+    /// Creates interface for deleting an event
+    void deleteEvent();
+    /// Creates interface for finding available time in the calendar
+    void findFreeTime();
+    /// Creates interface for importing events
+    void importEvents();
+    /// Creates interface for exporting events
+    void exportEvents();
+
+    /// Prints daily view of the calendar
+    void dailyView();
+    /// Prints weekly view of the calendar
+    void weeklyView();
+    /// Prints monthly view of the calendar
+    void monthlyView();
 
 public:
     /// Creates the main interface of the program

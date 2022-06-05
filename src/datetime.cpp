@@ -8,6 +8,19 @@ DateTime::DateTime(const DateTime &other)
 
 DateTime::DateTime(){}
 
+void DateTime::strToDate(const std::string& dateStr) {
+    std::istringstream dateStream;
+    dateStream.str(dateStr);
+    std::string temp;
+    std::getline(dateStream, temp, '.');
+    mDay = std::stoi(temp);
+    std::getline(dateStream, temp, '.');
+    mMonth = std::stoi(temp);
+    std::getline(dateStream, temp, '.');
+    mYear = std::stoi(temp);
+    mTime = 0;
+}
+
 bool DateTime::isValid () const {
     unsigned monthDays[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     if (isLeapYear(mYear) ) monthDays[1] = 29;
@@ -24,7 +37,8 @@ bool operator < ( const DateTime& lhs, const DateTime& rhs) {
            std:: tie(rhs.mYear, rhs.mMonth, rhs.mDay, rhs.mTime);
 }
 
-unsigned DateTime::dateToDays() noexcept{
+// Howard Hinnant's Algorithm [https://howardhinnant.github.io/date/date.html]
+unsigned DateTime::dateToDays() {
     unsigned y = mYear;
     y -= mMonth <= 2;
     const unsigned era = (y >= 0 ? y : y-399) / 400;
@@ -34,7 +48,8 @@ unsigned DateTime::dateToDays() noexcept{
     return era * 146097 + (doe) - 719468;
 }
 
-DateTime DateTime::daysToDate(unsigned days) noexcept {
+// Howard Hinnant's Algorithm [https://howardhinnant.github.io/date/date.html]
+DateTime DateTime::daysToDate(unsigned days)  {
     days += 719468;
     const unsigned era = (days >= 0 ? days : days - 146096) / 146097;
     const unsigned doe = (days - era * 146097);          
@@ -44,7 +59,6 @@ DateTime DateTime::daysToDate(unsigned days) noexcept {
     const unsigned mp = (5*doy + 2)/153;      
     const unsigned d = doy - (153*mp+2)/5 + 1;
     const unsigned m = mp < 10 ? mp+3 : mp-9;
-
     return DateTime(y + (m <= 2), m, d);
 }
 
@@ -54,7 +68,6 @@ std::ostream& operator << (std::ostream &out, const DateTime& date) {
             std::setfill('0') << std::setw(4) << date.mYear <<" " << date.mTime << ":00";
     return out;
 }
-
 
 unsigned DateTime::getTime() const { return mTime; }
 void DateTime::setDay (unsigned day) { mDay = day; }
@@ -66,18 +79,17 @@ void DateTime::setTime(const unsigned time) {
     }
 }
 
-
 unsigned DateTime::daysInMonth() const { 
     unsigned monthDays[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     if (isLeapYear(mYear) ) monthDays[1] = 29;
     return monthDays[mMonth-1];
 }
 
-
-DateTime DateTime::currDateTime() {
-    std::time_t t = std::time(0);   // get time now
+// Adapted from milleniumbug [https://stackoverflow.com/questions/997946/how-to-get-current-time-and-date-in-c]
+DateTime DateTime::currDateTime() const {
+    std::time_t t = std::time(0); // get time passed since 1900
     std::tm* now = std::localtime(&t);
-    DateTime today ( (now->tm_year + 1900), (now->tm_mon + 1), now->tm_mday, now->tm_hour);
+    DateTime today ( (now->tm_year + 1900), (now->tm_mon + 1), now->tm_mday, now->tm_hour); 
     return today;
 }
 
@@ -88,7 +100,7 @@ std::string DateTime::formatDate () {
     return out.str();
 }
 
-
+// Adapted from Sakamoto's methods [https://en.wikipedia.org/wiki/Determination_of_the_day_of_the_week]
 std::string DateTime::dayOfWeek () const {
     unsigned y = mYear;
     const unsigned t[] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
@@ -103,9 +115,8 @@ void DateTime::resetWeek () {
     const unsigned t[] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
     if ( mMonth < 3 ) y -= 1;
     unsigned i = (y + y/4 - y/100 + y/400 + t[mMonth-1] + mDay) % 7;
-    const std::string weekDays [7] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-    
-    const unsigned backToMonday [7] ={6, 0 , 1, 2, 3, 4, 5}; // days need to substract to set the date to last to Monday (first day of week)
+    // for refrence: "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+    const unsigned backToMonday [7] ={6, 0 , 1, 2, 3, 4, 5}; // num of days need to substract to set the date to last to Monday (first day of week)
     unsigned days = dateToDays();
     days -= backToMonday[i];
     *this = daysToDate(days);

@@ -23,12 +23,6 @@ public:
      */
     bool pushEvent(DateTime date, std::shared_ptr<Event>& event);   
     /**
-     * Asks user for y/n input
-     * @param question string with the question
-     * @return true if input is 'y', false if input is 'n'
-     */
-    bool promptBool(const std::string question) const;
-    /**
      * Finds and prints all events between two range of DateTime
      * @param begin start of the DateTime
      * @param end end of the DateTime
@@ -37,7 +31,7 @@ public:
     bool printEvents(DateTime& begin, DateTime& end);
     /**
      * Prints all the event on a given day
-     * @param day given day
+     * @param dayBegin given day
      */
     void printEvents(DateTime& dayBegin);
     /**
@@ -65,8 +59,8 @@ public:
     bool printFreeTime(const DateTime& inDate, const unsigned duration);
     /**
      * Checks whether if a DateTime is free for an event of specific duration
-     * @param inDate DateTime to check if it's free
-     * @param duration for the period of time we are looking for the free spot 
+     * @param date DateTime to check if it's free
+     * @param eventDuration for the period of time we are looking for the free spot 
      * @return true if free, false if not free
      */
     bool isTimeFree (const DateTime& date, unsigned eventDuration);

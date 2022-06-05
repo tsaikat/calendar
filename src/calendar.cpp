@@ -7,23 +7,8 @@ bool Calendar::pushEvent(DateTime date, std::shared_ptr<Event>& event) {
         return true;
     } else {
         std::cout << "Oops! an event already exist/overlapping on " << date << std::endl;
-        if (promptBool("Do you want to replace the conflicting event? (y/n)") ) {
-            auto it = database.lower_bound(date);
-            database.erase(it);
-            database[date] = event;
-            return true;
-        }
+        throwMsg("Press <ENTER> to continue");
     }
-    return false;
-}
-
-bool Calendar::promptBool(const std::string question) const {
-    std::string answer;
-    while ( answer != "y" && answer != "n" ) {
-        std::cout << question << std::endl;
-        getline(std::cin, answer);
-    }
-    if (answer == "y") return true;
     return false;
 }
 
@@ -75,7 +60,6 @@ bool Calendar::findByPlace(std::string name) {
     return flag;
 }
 
-
 bool Calendar::deleteEvent(const DateTime& date) {
     auto it = database.find(date);
     if (it != database.end()) {
@@ -94,11 +78,13 @@ bool Calendar::printFreeTime(const DateTime& inDate, const unsigned duration) {
         } else {
             date.setTime(date.getTime()+1);
         }
-    }
-    
+    }   
 }
 
 bool Calendar::isTimeFree (const DateTime& date, unsigned eventDuration) {
+    // Checks if the given event (data + duration) can be placed in the database by
+    // comparing given event end time with next event start time
+    // and previous event end time with given event start time
     if (database.begin() == database.end()) return true;
     auto it = database.lower_bound(date);
     if ( it == database.end() ) {
@@ -107,7 +93,6 @@ bool Calendar::isTimeFree (const DateTime& date, unsigned eventDuration) {
         DateTime newDate = it->first;
         newDate.setTime(newDate.getTime()+ duration  - 1);
         return newDate < date;
-        // --it and add duration and get a newDate.. check if this newDate is smaller than date. if smaller, date is free
     }
 
     if ( it->first != date ) {
@@ -125,20 +110,9 @@ bool Calendar::isTimeFree (const DateTime& date, unsigned eventDuration) {
         DateTime endDate = date;
         endDate.setTime(endDate.getTime() + eventDuration - 1);
         return ( endDate < upperBound->first );
-        // --it and add duration and get a newDate.. check if this newDate is smaller than date.
-        // if not smaller then return false
-        // if smaller then 
-        // add duration to date and get endDate and check if there's anything in between these date and endDate.. if nothing then free(true), else return false.
     }
     return false;
 }
-
-void Calendar::throwMsg (const std::string& msg) const {
-    std::cout << msg <<std::endl;
-    std::string temp;
-    getline(std::cin, temp);
-}
-
 
 bool Calendar::moveEvent (const DateTime& moveFrom, const DateTime& moveTo ) {
     auto it = database.find(moveFrom); 
@@ -154,6 +128,11 @@ bool Calendar::moveEvent (const DateTime& moveFrom, const DateTime& moveTo ) {
     return false;
 }
 
+void Calendar::throwMsg (const std::string& msg) const {
+    std::cout << msg <<std::endl;
+    std::string temp;
+    getline(std::cin, temp);
+}
 
 std::string Calendar::exportCSV() {
     std::ofstream file;
@@ -170,6 +149,7 @@ std::string Calendar::exportCSV() {
          << "Location," 
          << "Participants," 
          << "Type of Event,"
+         << "Extra,"
          << "Duration"
          << "\n";
     
@@ -180,88 +160,10 @@ std::string Calendar::exportCSV() {
              << event->getPlace() << delim
              << event->getParticipants() << delim
              << event->getType() << delim
+             << event->getExtra() << delim
              << event->getDuration() << "\n";
     }
     file.close();
-    return fileName;
-}
-
-void Calendar::importCSV() {
-    std::ifstream file;
-    file.open(getFileName(), std::ios::in);
-    std::string line = "";
-    getline(file, line);
-    while (getline(file, line)) {
-        std::istringstream row;
-        row.str(line);
-        //veribles to make DateTime & Event
-        int year =0;
-        int month = 0;
-        int day = 0;
-        int time = 0;
-        std::string name = "";
-        std::string place ="";
-        int participants = 0;
-        int type = 0;
-        int duration = 0;
-        int i = 0;
-        for (std::string buffer; std::getline(row, buffer, ','); ++i) {
-            if (i == 0) {
-                std::istringstream dateStream;
-                dateStream.str(buffer);
-                std::string temp;
-                std::getline(dateStream, temp, '.');
-                day = std::stoi(temp);
-                std::getline(dateStream, temp, '.');
-                month = std::stoi(temp);
-                std::getline(dateStream, temp, '.');
-                year = std::stoi(temp);
-            } else if (i == 1) {
-                time = std::stoi(buffer);
-            } else if ( i == 2) {
-                name = buffer;
-            } else if ( i == 3) {
-                place = buffer;
-            } else if ( i == 4) {
-                participants = std::stoi(buffer);
-            } else if ( i == 5) {
-                if (buffer == "Important") type = 1;
-                else if (buffer == "Optional") type = 2;
-                else if (buffer == "Moveable") type = 3;
-                else continue;
-            } else if ( i == 6) {
-                duration = std::stoi(buffer);
-            }
-        }
-        DateTime date (year, month, day, time);
-        if (!date.isValid()) continue;
-        std::shared_ptr<Event> event; 
-        if (type == 1) {
-            event = std::make_shared<Important>(name, place, duration, participants);
-        } else if (type == 2) {
-            event = std::make_shared<Optional>(name, place, duration, participants);
-        } else if (type == 3) {
-            event = std::make_shared<Moveable>(name, place, duration, participants);
-        }
-        pushEvent(date, event);
-    }
-    throwMsg("Import completed. Press <ENTER> to return");
-}
-std::string Calendar::getFileName() const {
-    std::string fileName;
-    while ( fileName.empty() ) {
-        std::cout << "Please enter a valid file path/name(exclude '.csv' e.g. imports/import0) " <<std::endl;
-        getline(std::cin, fileName);
-        if (fileName.empty() ) {
-            throwMsg("Cannot be left blank. Press <ENTER> to try again!");
-            continue;
-        }
-        fileName+= ".csv";
-        if ( !std::filesystem::exists(fileName) ) {
-            throwMsg("File name/path doesn't exist. Press <ENTER> to try again!");
-            fileName.clear();
-        }
-    }
     return fileName;
 }
 
@@ -301,5 +203,94 @@ std::string Calendar::exportHTML() {
     }
     file << "</tbody></table></body></html>";
     file.close();
+    return fileName;
+}
+
+void Calendar::importCSV() {
+    std::ifstream file;
+    file.open(getFileName(), std::ios::in);
+    std::string line = "";
+    getline(file, line);
+    // Read a line
+    while (getline(file, line)) {
+        std::istringstream row;
+        row.str(line);
+        // Veribles to make DateTime & Event
+        DateTime date;
+        int time = 0;
+        std::string name = "";
+        std::string place ="";
+        int participants = 0;
+        int type = 0;
+        int duration = 0;
+        std::string extra = "";
+        int i = 0;
+        try {
+            // Extract each attributes from the line
+            for (std::string buffer; std::getline(row, buffer, ','); ++i) {
+                if (i == 0) {
+                    date.strToDate(buffer);
+                } else if (i == 1) {
+                    time = std::stoi(buffer);
+                } else if ( i == 2) {
+                    name = buffer;
+                } else if ( i == 3) {
+                    place = buffer;
+                } else if ( i == 4) {
+                    participants = std::stoi(buffer);
+                } else if ( i == 5) {
+                    if (buffer == "Important") type = 1;
+                    else if (buffer == "Optional") type = 2;
+                    else if (buffer == "Moveable") type = 3;
+                    else continue;
+                } else if ( i == 6) {
+                    extra = buffer;
+                } else if (i == 7) {
+                    duration = std::stoi(buffer);
+                }
+            }
+        } catch (...) {
+            std::cout <<"Input data that was not formatted well are being skipped..." << std::endl;
+            continue;
+        }
+
+        date.setTime(time);
+        if (!date.isValid()) continue;
+        std::shared_ptr<Event> event; 
+        if (type == 1) {
+            event = std::make_shared<Important>(name, place, duration, participants, extra);
+        } else if (type == 2) {
+            bool lessVis = stoi(extra);
+            event = std::make_shared<Optional>(name, place, duration, participants, lessVis);
+        } else if (type == 3) {
+            DateTime moveUntil;
+            try {
+                moveUntil.strToDate(extra);
+            } catch (...) {
+                std::cout << "Date provided for moveable unitll is not valid. skipping.." << std::endl;
+                continue;
+            }
+            event = std::make_shared<Moveable>(name, place, duration, participants, moveUntil);
+        }
+        pushEvent(date, event);
+    }
+    throwMsg("Import completed. Press <ENTER> to return");
+}
+
+std::string Calendar::getFileName() const {
+    std::string fileName;
+    while ( fileName.empty() ) {
+        std::cout << "Please enter a valid file path/name(exclude '.csv' e.g. examples/file) " <<std::endl;
+        getline(std::cin, fileName);
+        if (fileName.empty() ) {
+            throwMsg("Cannot be left blank. Press <ENTER> to try again!");
+            continue;
+        }
+        fileName+= ".csv";
+        if ( !std::filesystem::exists(fileName) ) {
+            throwMsg("File name/path doesn't exist. Press <ENTER> to try again!");
+            fileName.clear();
+        }
+    }
     return fileName;
 }

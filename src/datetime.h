@@ -25,15 +25,20 @@ public:
      * @param other existing DateTime object to be copied from.
      */
     DateTime(const DateTime &other);
-    ///empty constructor
+    /// Empty constructor
     DateTime();
+    /**
+     * Converts a well formated date from string to DateTime and stores in the current instance, time is alaways set to 0
+     * This may throw exception
+     * @param dateStr a date in the form of string
+     */
+    void strToDate(const std::string& dateStr);
 
     /**
      * Checks whether the date this entity holds is valid or not
      * @return true if valid, false if invalid
      */
     bool isValid () const;
-    
     /**
      * Checks if a year is a leap year
      * @param year pass the year that needs to be checked
@@ -55,7 +60,7 @@ public:
      */
     friend std::ostream& operator << (std::ostream &oss, const DateTime& date);
     
-    /// Increases date by one day forward (post-increment)
+    /// Increases date by one day forward (pre-increment)
     DateTime operator ++ ();
     /// compares two instances of DateTime for quality
     bool operator == ( const DateTime& rhs) const;
@@ -66,25 +71,21 @@ public:
     /// @return how many days in current month
     unsigned daysInMonth() const;
     /// @return current local date and time as an instance of DateTime
-    DateTime currDateTime();
+    DateTime currDateTime() const;
     /// Sets the date back to starts of the week (Monday)
     void resetWeek ();
-
     /**
-     * Howard Hinnant's Algorithm [https://howardhinnant.github.io/date/date.html]
      * Convert the date into days
      * @return number of days
      */ 
-    unsigned dateToDays() noexcept;
+    unsigned dateToDays();
     /**
-     * Howard Hinnant's Algorithm
      * Convert the days into a date
      * @return date as a DateTime instance
      */
-    DateTime daysToDate(unsigned days) noexcept;
+    DateTime daysToDate(unsigned days);
 
     /**
-     * Adopted from Sakamoto's methods [https://en.wikipedia.org/wiki/Determination_of_the_day_of_the_week]
      * Finds out what day of the week it is
      * @return day of the week as a string 
      */
