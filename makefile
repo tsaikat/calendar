@@ -1,8 +1,7 @@
-OBJS = $(patsubst $(SRCDIR)/%.cpp,%.o,$(wildcard $(SRCDIR)/*.cpp))
-GXX = g++
-CFLAGS = $(GXX) -std=c++17 -Wall -pedantic
-SRCDIR = src
-BINDIR = saikamda
+OBJS = $(patsubst $(SRC_DIR)/%.cpp,%.o,$(wildcard $(SRC_DIR)/*.cpp))
+CXXFLAGS = g++ -std=c++17 -Wall -pedantic
+SRC_DIR = src
+BUILD = saikamda
 
 .PHONY: all
 .PHONY: clean
@@ -10,23 +9,20 @@ BINDIR = saikamda
 .PHONY: run
 .PHONY: doc
 
-all: update compile doc
+all: compile doc
 
 compile: $(OBJS)
-	$(GXX) $^ -o $(BINDIR)/pcalendar
+	$(CXXFLAGS) -MM $(SRC_DIR)/*.cpp > dependencies.mk
+	$(CXXFLAGS) -o $(BUILD) $^ -lstdc++fs
 
-%.o: $(SRCDIR)/%.cpp
-	$(CFLAGS) -c $< -o $@
+%.o: $(SRC_DIR)/%.cpp
+	$(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(OBJS) $(BINDIR) dependencies.mk doc
-
-update:
-	mkdir -p $(BINDIR)
-	$(GXX) -MM $(SRCDIR)/*.cpp > dependencies.mk
+	rm -rf $(OBJS) $(BUILD) dependencies.mk doc
 
 run:
-	$(BINDIR)/pcalendar
+	./$(BUILD)
 
 doc:
 	doxygen doxyConfig
